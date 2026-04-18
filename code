@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduTrack — Student Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --glow: rgba(59,130,246,0.18);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  h1,h2,h3,h4 { font-family: 'Syne', sans-serif; }
+
+  /* ─── LOGIN ─── */
+  #loginScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, #1a3a6e 0%, #0a0e1a 70%);
+    position: relative;
+  }
+  #loginScreen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 44px;
+    width: 420px;
+    box-shadow: 0 0 60px rgba(59,130,246,0.12), 0 24px 60px rgba(0,0,0,0.5);
+    animation: fadeUp 0.6s ease;
+    position: relative;
+    z-index: 1;
+  }
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .login-logo h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+  .login-logo span { color: var(--accent2); }
+  .login-subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 32px; }
+  .role-selector {
+    display: flex; gap: 8px; margin-bottom: 24px;
+  }
+  .role-btn {
+    flex: 1; padding: 10px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--text-muted); cursor: pointer; font-family: 'Syne', sans-serif;
+    font-size: 0.82rem; font-weight: 600; letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+  .role-btn.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-color: transparent; color: #fff;
+    box-shadow: 0 4px 20px rgba(59,130,246,0.35);
+  }
+  .form-group { margin-bottom: 18px; }
+  label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 7px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+  input[type=text], input[type=password], input[type=email], input[type=number], select, textarea {
+    width: 100%; padding: 12px 16px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  }
+  select option { background: var(--surface2); }
+  .btn {
+    width: 100%; padding: 13px; border-radius: 10px;
+    border: none; cursor: pointer; font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700; letter-spacing: 0.5px;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff; box-shadow: 0 4px 20px rgba(59,130,246,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(59,130,246,0.5); }
+  .btn-sm {
+    width: auto; padding: 7px 16px; font-size: 0.82rem; border-radius: 8px;
+  }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-accent { background: linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; }
+  .error-msg { color: var(--danger); font-size: 0.85rem; margin-top: 12px; text-align: center; display: none; }
+
+  /* ─── APP SHELL ─── */
+  #appShell { display: none; min-height: 100vh; }
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    z-index: 100;
+    padding: 24px 0;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 20px; margin-bottom: 32px;
+  }
+  .sidebar-logo .logo-icon { width: 36px; height: 36px; font-size: 18px; border-radius: 10px; }
+  .sidebar-logo h2 { font-size: 1.15rem; font-weight: 800; }
+  .sidebar-logo span { color: var(--accent2); }
+  nav { flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px; cursor: pointer;
+    color: var(--text-muted); font-size: 0.9rem; font-weight: 500;
+    transition: all 0.15s; border-left: 3px solid transparent;
+    margin: 2px 0;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active { color: var(--accent); background: rgba(59,130,246,0.1); border-left-color: var(--accent); }
+  .nav-item .icon { font-size: 1.1rem; width: 22px; text-align: center; }
+  .nav-section { font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); padding: 16px 20px 6px; font-family: 'Syne', sans-serif; font-weight: 600; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .user-pill {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface2); border-radius: 10px; padding: 10px 12px;
+  }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,var(--accent),var(--accent2)); display:flex;align-items:center;justify-content:center; font-weight: 700; font-size: 0.85rem; flex-shrink:0; }
+  .user-info { flex: 1; overflow: hidden; }
+  .user-info .name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-info .role { font-size: 0.72rem; color: var(--text-muted); }
+  .logout-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; transition: color 0.15s; }
+  .logout-btn:hover { color: var(--danger); }
+
+  .main-content {
+    margin-left: 240px; min-height: 100vh;
+    background: var(--bg);
+  }
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(10,14,26,0.9); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar h2 { font-size: 1.3rem; font-weight: 700; }
+  .topbar-right { display: flex; gap: 10px; align-items: center; }
+  .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; font-family: 'Syne',sans-serif; }
+  .badge-blue { background: rgba(59,130,246,0.2); color: var(--accent); }
+  .badge-green { background: rgba(16,185,129,0.2); color: var(--success); }
+  .badge-orange { background: rgba(245,158,11,0.2); color: var(--warning); }
+  .badge-red { background: rgba(239,68,68,0.2); color: var(--danger); }
+  .page { display: none; padding: 32px; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+
+  /* ─── CARDS / STATS ─── */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 22px 20px; position: relative; overflow: hidden;
+  }
+  .stat-card::after {
+    content: ''; position: absolute; top: -20px; right: -20px;
+    width: 80px; height: 80px; border-radius: 50%;
+    opacity: 0.12;
+  }
+  .stat-card.blue::after { background: var(--accent); }
+  .stat-card.green::after { background: var(--success); }
+  .stat-card.orange::after { background: var(--warning); }
+  .stat-card.red::after { background: var(--danger); }
+  .stat-icon { font-size: 1.6rem; margin-bottom: 12px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; }
+  .stat-label { color: var(--text-muted); font-size: 0.82rem; margin-top: 4px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 24px; margin-bottom: 20px;
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; }
+
+  /* ─── TABLE ─── */
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--surface2); }
+  th { padding: 12px 16px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); font-family: 'Syne',sans-serif; text-align: left; }
+  td { padding: 13px 16px; font-size: 0.9rem; border-top: 1px solid var(--border); vertical-align: middle; }
+  tr:hover td { background: rgba(59,130,246,0.04); }
+  .attendance-cell { display: flex; align-items: center; gap: 8px; }
+  .att-btn {
+    padding: 5px 12px; border-radius: 6px; border: none; cursor: pointer;
+    font-size: 0.78rem; font-weight: 600; font-family: 'Syne',sans-serif; transition: all 0.15s;
+  }
+  .att-btn.present { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+  .att-btn.absent  { background: rgba(239,68,68,0.15);   color: var(--danger);  border: 1px solid rgba(239,68,68,0.3); }
+  .att-btn.active-present { background: var(--success); color: #fff; }
+  .att-btn.active-absent  { background: var(--danger);  color: #fff; }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px; width: 480px; max-width: 95vw;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    animation: fadeUp 0.3s ease;
+  }
+  .modal h3 { font-size: 1.2rem; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+  .modal-actions .btn { width: auto; padding: 10px 22px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .search-bar {
+    padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-family: 'DM Sans',sans-serif;
+    font-size: 0.9rem; outline: none; width: 240px; transition: border-color 0.2s;
+  }
+  .search-bar:focus { border-color: var(--accent); }
+
+  /* ─── NOTES ─── */
+  .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; }
+  .note-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px; cursor: pointer; transition: all 0.2s; position: relative;
+  }
+  .note-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59,130,246,0.15); }
+  .note-card .note-title { font-family: 'Syne',sans-serif; font-weight: 700; margin-bottom: 8px; font-size: 1rem; }
+  .note-card .note-body { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .note-card .note-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 12px; display: flex; justify-content: space-between; }
+  .note-card .note-delete { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.95rem; opacity: 0; transition: 0.15s; }
+  .note-card:hover .note-delete { opacity: 1; color: var(--danger); }
+  .note-color { width: 8px; border-radius: 4px; position: absolute; left: 0; top: 0; bottom: 0; border-radius: 12px 0 0 12px; }
+
+  /* ─── MARKS ─── */
+  .marks-table input[type=number] {
+    width: 70px; padding: 6px 10px; font-size: 0.88rem;
+    border-radius: 6px; background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); text-align: center;
+  }
+  .progress-bar-wrap { width: 100px; background: var(--surface2); border-radius: 4px; height: 6px; overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: 4px; transition: width 0.5s; }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+  .chip-success { background: rgba(16,185,129,0.15); color: var(--success); }
+  .chip-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .chip-warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.4; }
+
+  textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ LOGIN ══════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🎓</div>
+      <h1>Edu<span>Track</span></h1>
+    </div>
+    <p class="login-subtitle">Student Management System — Sign in to continue</p>
+    <div class="role-selector">
+      <button class="role-btn active" onclick="setRole('admin')">Admin</button>
+      <button class="role-btn" onclick="setRole('teacher')">Teacher</button>
+      <button class="role-btn" onclick="setRole('student')">Student</button>
+    </div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="e.g. admin" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" />
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">🔐 Sign In</button>
+    <p class="error-msg" id="loginErr">Invalid credentials. Please try again.</p>
+    <p style="font-size:0.78rem;color:var(--text-muted);margin-top:16px;text-align:center;">
+      Demo: admin/admin123 &nbsp;|&nbsp; teacher/teach123 &nbsp;|&nbsp; student/stu123
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════ APP SHELL ══════════════════ -->
+<div id="appShell">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🎓</div>
+      <h2>Edu<span>Track</span></h2>
+    </div>
+    <nav>
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="navigate('dashboard')"><span class="icon">🏠</span>Dashboard</div>
+      <div class="nav-section" id="navAdminSection">Management</div>
+      <div class="nav-item" id="navStudents" onclick="navigate('students')"><span class="icon">👥</span>Students</div>
+      <div class="nav-item" id="navAttendance" onclick="navigate('attendance')"><span class="icon">📋</span>Attendance</div>
+      <div class="nav-item" id="navMarks" onclick="navigate('marks')"><span class="icon">📊</span>Marks</div>
+      <div class="nav-section">Personal</div>
+      <div class="nav-item" onclick="navigate('notes')"><span class="icon">📝</span>Notes</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="avatar" id="sidebarAvatar">A</div>
+        <div class="user-info">
+          <div class="name" id="sidebarName">Admin</div>
+          <div class="role" id="sidebarRole">Administrator</div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()" title="Logout">⏻</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <h2 id="pageTitle">Dashboard</h2>
+      <div class="topbar-right">
+        <span class="badge badge-blue" id="topbarRole">Admin</span>
+        <span id="topbarDate" style="font-size:0.82rem;color:var(--text-muted);"></span>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value" id="statStudents">0</div>
+          <div class="stat-label">Total Students</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="statPresent">0%</div>
+          <div class="stat-label">Today's Attendance</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">📊</div>
+          <div class="stat-value" id="statAvgMark">0</div>
+          <div class="stat-label">Class Average</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">📝</div>
+          <div class="stat-value" id="statNotes">0</div>
+          <div class="stat-label">Notes Saved</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent Students</span></div>
+          <div id="recentStudents"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Attendance Overview</span></div>
+          <div id="attendanceOverview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENTS -->
+    <div class="page" id="page-students">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">All Students</span>
+          <div style="display:flex;gap:10px;">
+            <input class="search-bar" type="text" id="studentSearch" placeholder="🔍 Search students…" oninput="renderStudents()">
+            <button class="btn btn-accent btn-sm" onclick="openAddStudent()">+ Add Student</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Name</th><th>Class</th><th>Roll No</th><th>Email</th><th>Attendance</th><th>Avg Mark</th><th>Actions</th></tr></thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div class="page" id="page-attendance">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Mark Attendance</span>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input type="date" id="attDate" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:DM Sans,sans-serif;outline:none;" onchange="renderAttendance()">
+            <select id="attClass" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:DM Sans,sans-serif;outline:none;" onchange="renderAttendance()">
+              <option value="">All Classes</option>
+              <option>10A</option><option>10B</option><option>11A</option><option>11B</option><option>12A</option>
+            </select>
+            <button class="btn btn-success btn-sm" onclick="saveAttendance()">💾 Save</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Roll No</th><th>Name</th><th>Class</th><th>Status</th><th>Remark</th></tr></thead>
+            <tbody id="attTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Attendance History</span></div>
+        <div id="attHistory"></div>
+      </div>
+    </div>
+
+    <!-- MARKS -->
+    <div class="page" id="page-marks">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Marks Management</span>
+          <div style="display:flex;gap:10px;">
+            <select id="marksClass" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:DM Sans,sans-serif;outline:none;" onchange="renderMarks()">
+              <option value="">All Classes</option>
+              <option>10A</option><option>10B</option><option>11A</option><option>11B</option><option>12A</option>
+            </select>
+            <select id="marksSubject" style="padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:DM Sans,sans-serif;outline:none;" onchange="renderMarks()">
+              <option value="">All Subjects</option>
+              <option>Mathematics</option><option>Science</option><option>English</option><option>History</option><option>Computer</option>
+            </select>
+            <button class="btn btn-accent btn-sm" onclick="saveMarks()">💾 Save Marks</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="marks-table">
+            <thead><tr><th>Student</th><th>Class</th><th>Math</th><th>Science</th><th>English</th><th>History</th><th>Computer</th><th>Total</th><th>Grade</th></tr></thead>
+            <tbody id="marksTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="page" id="page-notes">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <span class="card-title">Quick Note</span>
+          <button class="btn btn-accent btn-sm" onclick="openAddNote()">+ New Note</button>
+        </div>
+      </div>
+      <div class="notes-grid" id="notesGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal">
+    <h3 id="studentModalTitle">Add Student</h3>
+    <div class="grid-2">
+      <div class="form-group"><label>First Name</label><input type="text" id="sFirstName" placeholder="John"></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="sLastName" placeholder="Doe"></div>
+    </div>
+    <div class="grid-2">
+      <div class="form-group"><label>Roll No</label><input type="text" id="sRollNo" placeholder="101"></div>
+      <div class="form-group"><label>Class</label>
+        <select id="sClass"><option>10A</option><option>10B</option><option>11A</option><option>11B</option><option>12A</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="sEmail" placeholder="student@school.edu"></div>
+    <div class="form-group"><label>Phone</label><input type="text" id="sPhone" placeholder="+91 9876543210"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('studentModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveStudent()">Save Student</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="noteModal">
+  <div class="modal">
+    <h3 id="noteModalTitle">New Note</h3>
+    <div class="form-group"><label>Title</label><input type="text" id="noteTitle" placeholder="Note title…"></div>
+    <div class="form-group"><label>Content</label><textarea id="noteBody" placeholder="Write your note here…"></textarea></div>
+    <div class="form-group">
+      <label>Color Tag</label>
+      <select id="noteColor">
+        <option value="#3b82f6">Blue</option>
+        <option value="#10b981">Green</option>
+        <option value="#f59e0b">Yellow</option>
+        <option value="#ef4444">Red</option>
+        <option value="#8b5cf6">Purple</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('noteModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveNote()">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="viewNoteModal">
+  <div class="modal" style="width:560px">
+    <h3 id="viewNoteTitle" style="margin-bottom:16px;"></h3>
+    <p id="viewNoteBody" style="color:var(--text-dim);line-height:1.7;font-size:0.95rem;white-space:pre-wrap;"></p>
+    <p id="viewNoteMeta" style="margin-top:16px;font-size:0.78rem;color:var(--text-muted);"></p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary btn-sm" onclick="closeModal('viewNoteModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+const USERS = {
+  admin:   { pass:'admin123',  role:'admin',   name:'Admin User' },
+  teacher: { pass:'teach123',  role:'teacher', name:'Mrs. Sharma' },
+  student: { pass:'stu123',    role:'student', name:'Ravi Kumar' },
+};
+
+let currentUser = null;
+let selectedRole = 'admin';
+let editingStudentId = null;
+let editingNoteId = null;
+
+let students = [
+  { id:1, firstName:'Aarav',    lastName:'Mehta',    rollNo:'101', class:'10A', email:'aarav@school.edu',    phone:'9876543210' },
+  { id:2, firstName:'Priya',    lastName:'Sharma',   rollNo:'102', class:'10A', email:'priya@school.edu',    phone:'9876543211' },
+  { id:3, firstName:'Rohan',    lastName:'Verma',    rollNo:'103', class:'10B', email:'rohan@school.edu',    phone:'9876543212' },
+  { id:4, firstName:'Sneha',    lastName:'Patel',    rollNo:'104', class:'11A', email:'sneha@school.edu',    phone:'9876543213' },
+  { id:5, firstName:'Vikram',   lastName:'Singh',    rollNo:'105', class:'11B', email:'vikram@school.edu',   phone:'9876543214' },
+  { id:6, firstName:'Ananya',   lastName:'Nair',     rollNo:'106', class:'12A', email:'ananya@school.edu',   phone:'9876543215' },
+];
+let nextStudentId = 7;
+
+// attendance[date][studentId] = { status:'P'|'A', remark:'' }
+let attendance = {};
+
+// marks[studentId] = { Math:0, Science:0, English:0, History:0, Computer:0 }
+let marks = {};
+students.forEach(s => {
+  marks[s.id] = { Mathematics: rnd(50,100), Science: rnd(50,100), English: rnd(50,100), History: rnd(50,100), Computer: rnd(50,100) };
+});
+
+let notes = [];
+let nextNoteId = 1;
+
+function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+// ════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════
+function setRole(r){ selectedRole=r; document.querySelectorAll('.role-btn').forEach((b,i)=>b.classList.toggle('active',['admin','teacher','student'][i]===r)); }
+
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  if(USERS[u] && USERS[u].pass===p){
+    currentUser = { username:u, ...USERS[u] };
+    document.getElementById('loginErr').style.display='none';
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appShell').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('loginErr').style.display='block';
+  }
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+function doLogout(){
+  currentUser=null;
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+
+function initApp(){
+  document.getElementById('sidebarName').textContent=currentUser.name;
+  document.getElementById('sidebarRole').textContent=currentUser.role==='admin'?'Administrator':currentUser.role==='teacher'?'Teacher':'Student';
+  document.getElementById('sidebarAvatar').textContent=currentUser.name[0].toUpperCase();
+  document.getElementById('topbarRole').textContent=currentUser.role.charAt(0).toUpperCase()+currentUser.role.slice(1);
+
+  // Restrict nav for student
+  if(currentUser.role==='student'){
+    document.getElementById('navStudents').style.display='none';
+    document.getElementById('navAdminSection').style.display='none';
+  }
+
+  // Set today's date on attendance
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('attDate').value=today;
+  document.getElementById('topbarDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+
+  navigate('dashboard');
+}
+
+// ════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════
+function navigate(page){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navMap={dashboard:0,students:1,attendance:2,marks:3,notes:4};
+  const items=document.querySelectorAll('.nav-item');
+  const idx=[...items].findIndex(i=>i.getAttribute('onclick')&&i.getAttribute('onclick').includes("'"+page+"'"));
+  if(idx>=0) items[idx].classList.add('active');
+
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+
+  const titles={dashboard:'Dashboard',students:'Students',attendance:'Attendance',marks:'Marks & Grades',notes:'Notes'};
+  document.getElementById('pageTitle').textContent=titles[page]||page;
+
+  if(page==='dashboard')  renderDashboard();
+  if(page==='students')   renderStudents();
+  if(page==='attendance') renderAttendance();
+  if(page==='marks')      renderMarks();
+  if(page==='notes')      renderNotes();
+}
+
+// ════════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════════
+function renderDashboard(){
+  document.getElementById('statStudents').textContent=students.length;
+  document.getElementById('statNotes').textContent=notes.length;
+
+  const today=new Date().toISOString().split('T')[0];
+  const todayAtt=attendance[today]||{};
+  const present=Object.values(todayAtt).filter(a=>a.status==='P').length;
+  const pct=students.length?Math.round(present/students.length*100):0;
+  document.getElementById('statPresent').textContent=pct+'%';
+
+  const allMarks=students.map(s=>{
+    const m=marks[s.id]||{};
+    const vals=Object.values(m);
+    return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+  });
+  const avg=allMarks.length?Math.round(allMarks.reduce((a,b)=>a+b,0)/allMarks.length):0;
+  document.getElementById('statAvgMark').textContent=avg;
+
+  // Recent students
+  const rs=document.getElementById('recentStudents');
+  rs.innerHTML=students.slice(-5).reverse().map(s=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div class="avatar" style="width:36px;height:36px;font-size:0.85rem">${s.firstName[0]}</div>
+      <div><div style="font-weight:600;font-size:0.9rem">${s.firstName} ${s.lastName}</div><div style="font-size:0.78rem;color:var(--text-muted)">${s.class} · Roll ${s.rollNo}</div></div>
+    </div>`).join('');
+
+  // Attendance overview
+  const ao=document.getElementById('attendanceOverview');
+  ao.innerHTML=students.slice(0,6).map(s=>{
+    const records=Object.values(attendance).map(d=>d[s.id]).filter(Boolean);
+    const p=records.filter(r=>r.status==='P').length;
+    const total=records.length||1;
+    const pct2=Math.round(p/total*100);
+    const color=pct2>=75?'var(--success)':pct2>=50?'var(--warning)':'var(--danger)';
+    return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1;font-size:0.88rem">${s.firstName} ${s.lastName}</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct2}%;background:${color}"></div></div>
+      <div style="font-size:0.8rem;color:${color};font-weight:600;width:38px;text-align:right">${pct2}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+//  STUDENTS
+// ════════════════════════════════════════════
+function renderStudents(){
+  const q=document.getElementById('studentSearch').value.toLowerCase();
+  const filtered=students.filter(s=>(s.firstName+' '+s.lastName).toLowerCase().includes(q)||s.rollNo.includes(q)||s.class.toLowerCase().includes(q));
+  const tbody=document.getElementById('studentTableBody');
+  if(!filtered.length){ tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="icon">👤</div><p>No students found</p></div></td></tr>`; return; }
+  tbody.innerHTML=filtered.map((s,i)=>{
+    const records=Object.values(attendance).map(d=>d[s.id]).filter(Boolean);
+    const p=records.filter(r=>r.status==='P').length;
+    const pct=records.length?Math.round(p/records.length*100):0;
+    const attColor=pct>=75?'chip-success':pct>=50?'chip-warning':'chip-danger';
+    const m=marks[s.id]||{};
+    const vals=Object.values(m);
+    const avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):0;
+    const canEdit=currentUser.role==='admin'||currentUser.role==='teacher';
+    return `<tr>
+      <td>${i+1}</td>
+      <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar" style="width:32px;height:32px;font-size:0.8rem">${s.firstName[0]}</div><div><div style="font-weight:600">${s.firstName} ${s.lastName}</div><div style="font-size:0.75rem;color:var(--text-muted)">${s.email}</div></div></div></td>
+      <td><span class="badge badge-blue">${s.class}</span></td>
+      <td>${s.rollNo}</td>
+      <td style="color:var(--text-muted);font-size:0.85rem">${s.email}</td>
+      <td><span class="chip ${attColor}">${pct}%</span></td>
+      <td><span style="font-weight:700">${avg}</span>/100</td>
+      <td>${canEdit?`<div style="display:flex;gap:6px"><button class="btn btn-secondary btn-sm" onclick="editStudent(${s.id})">✏️ Edit</button><button class="btn btn-danger btn-sm" onclick="deleteStudent(${s.id})">🗑️</button></div>`:'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddStudent(){ editingStudentId=null; document.getElementById('studentModalTitle').textContent='Add Student'; ['sFirstName','sLastName','sRollNo','sEmail','sPhone'].forEach(id=>document.getElementById(id).value=''); document.getElementById('studentModal').classList.add('open'); }
+
+function editStudent(id){
+  const s=students.find(x=>x.id===id); if(!s) return;
+  editingStudentId=id;
+  document.getElementById('studentModalTitle').textContent='Edit Student';
+  document.getElementById('sFirstName').value=s.firstName;
+  document.getElementById('sLastName').value=s.lastName;
+  document.getElementById('sRollNo').value=s.rollNo;
+  document.getElementById('sClass').value=s.class;
+  document.getElementById('sEmail').value=s.email;
+  document.getElementById('sPhone').value=s.phone;
+  document.getElementById('studentModal').classList.add('open');
+}
+
+function saveStudent(){
+  const data={ firstName:document.getElementById('sFirstName').value.trim(), lastName:document.getElementById('sLastName').value.trim(), rollNo:document.getElementById('sRollNo').value.trim(), class:document.getElementById('sClass').value, email:document.getElementById('sEmail').value.trim(), phone:document.getElementById('sPhone').value.trim() };
+  if(!data.firstName||!data.lastName||!data.rollNo){ alert('Please fill required fields.'); return; }
+  if(editingStudentId){
+    const idx=students.findIndex(s=>s.id===editingStudentId);
+    students[idx]={...students[idx],...data};
+  } else {
+    students.push({id:nextStudentId++,...data});
+    marks[nextStudentId-1]={ Mathematics:0, Science:0, English:0, History:0, Computer:0 };
+  }
+  closeModal('studentModal'); renderStudents();
+}
+
+function deleteStudent(id){ if(confirm('Delete this student?')){ students=students.filter(s=>s.id!==id); renderStudents(); } }
+
+// ════════════════════════════════════════════
+//  ATTENDANCE
+// ════════════════════════════════════════════
+function renderAttendance(){
+  const date=document.getElementById('attDate').value;
+  const cls=document.getElementById('attClass').value;
+  if(!attendance[date]) attendance[date]={};
+  const filtered=cls?students.filter(s=>s.class===cls):students;
+  const tbody=document.getElementById('attTableBody');
+  if(!filtered.length){ tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="icon">📋</div><p>No students for this filter</p></div></td></tr>`; return; }
+  tbody.innerHTML=filtered.map(s=>{
+    const rec=attendance[date][s.id]||{status:'',remark:''};
+    const isPresent=rec.status==='P'; const isAbsent=rec.status==='A';
+    return `<tr>
+      <td><span style="font-weight:600">${s.rollNo}</span></td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="width:30px;height:30px;font-size:0.78rem">${s.firstName[0]}</div>${s.firstName} ${s.lastName}</div></td>
+      <td><span class="badge badge-blue">${s.class}</span></td>
+      <td>
+        <div class="attendance-cell">
+          <button class="att-btn present ${isPresent?'active-present':''}" id="p-${s.id}" onclick="markAtt(${s.id},'P')">✓ Present</button>
+          <button class="att-btn absent ${isAbsent?'active-absent':''}"  id="a-${s.id}" onclick="markAtt(${s.id},'A')">✗ Absent</button>
+        </div>
+      </td>
+      <td><input type="text" id="rem-${s.id}" value="${rec.remark||''}" placeholder="Optional remark…" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:DM Sans,sans-serif;font-size:0.85rem;width:180px;outline:none;"></td>
+    </tr>`;
+  }).join('');
+  renderAttHistory();
+}
+
+function markAtt(id, status){
+  const date=document.getElementById('attDate').value;
+  if(!attendance[date]) attendance[date]={};
+  const existing=attendance[date][id]||{};
+  attendance[date][id]={...existing, status};
+  const pb=document.getElementById('p-'+id); const ab=document.getElementById('a-'+id);
+  pb.className='att-btn present'+(status==='P'?' active-present':'');
+  ab.className='att-btn absent'+(status==='A'?' active-absent':'');
+}
+
+function saveAttendance(){
+  const date=document.getElementById('attDate').value;
+  if(!attendance[date]) attendance[date]={};
+  const cls=document.getElementById('attClass').value;
+  const filtered=cls?students.filter(s=>s.class===cls):students;
+  filtered.forEach(s=>{
+    const rem=document.getElementById('rem-'+s.id);
+    if(rem){ if(!attendance[date][s.id]) attendance[date][s.id]={status:'',remark:''}; attendance[date][s.id].remark=rem.value; }
+  });
+  alert('✅ Attendance saved for '+date+'!'); renderAttHistory();
+}
+
+function renderAttHistory(){
+  const dates=Object.keys(attendance).sort((a,b)=>b.localeCompare(a)).slice(0,5);
+  const el=document.getElementById('attHistory');
+  if(!dates.length){ el.innerHTML='<div class="empty-state"><div class="icon">📅</div><p>No attendance records yet</p></div>'; return; }
+  el.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Present</th><th>Absent</th><th>Rate</th></tr></thead><tbody>${
+    dates.map(d=>{
+      const recs=attendance[d];
+      const p=Object.values(recs).filter(r=>r.status==='P').length;
+      const a=Object.values(recs).filter(r=>r.status==='A').length;
+      const total=p+a||1; const pct=Math.round(p/total*100);
+      return `<tr><td>${d}</td><td><span class="chip chip-success">✓ ${p}</span></td><td><span class="chip chip-danger">✗ ${a}</span></td><td><div style="display:flex;align-items:center;gap:10px"><div class="progress-bar-wrap" style="width:80px"><div class="progress-bar" style="width:${pct}%;background:${pct>=75?'var(--success)':pct>=50?'var(--warning)':'var(--danger)'}"></div></div>${pct}%</div></td></tr>`;
+    }).join('')
+  }</tbody></table></div>`;
+}
+
+// ════════════════════════════════════════════
+//  MARKS
+// ════════════════════════════════════════════
+const SUBJECTS=['Mathematics','Science','English','History','Computer'];
+
+function renderMarks(){
+  const cls=document.getElementById('marksClass').value;
+  const filtered=cls?students.filter(s=>s.class===cls):students;
+  const tbody=document.getElementById('marksTableBody');
+  if(!filtered.length){ tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="icon">📊</div><p>No students found</p></div></td></tr>`; return; }
+  tbody.innerHTML=filtered.map(s=>{
+    const m=marks[s.id]||{}; const vals=SUBJECTS.map(sub=>m[sub]||0);
+    const total=vals.reduce((a,b)=>a+b,0); const avg=Math.round(total/SUBJECTS.length);
+    const grade=avg>=90?'A+':avg>=80?'A':avg>=70?'B':avg>=60?'C':avg>=50?'D':'F';
+    const gradeColor=avg>=70?'var(--success)':avg>=50?'var(--warning)':'var(--danger)';
+    const canEdit=currentUser.role==='admin'||currentUser.role==='teacher';
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="width:30px;height:30px;font-size:0.78rem">${s.firstName[0]}</div>${s.firstName} ${s.lastName}</div></td>
+      <td><span class="badge badge-blue">${s.class}</span></td>
+      ${SUBJECTS.map(sub=>`<td>${canEdit?`<input type="number" min="0" max="100" value="${m[sub]||0}" id="m-${s.id}-${sub}" oninput="updateTotalRow(${s.id})">`:`<span style="font-weight:600">${m[sub]||0}</span>`}</td>`).join('')}
+      <td id="total-${s.id}" style="font-weight:700">${total}</td>
+      <td><span style="font-weight:800;color:${gradeColor};font-family:'Syne',sans-serif">${grade}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function updateTotalRow(sid){
+  const vals=SUBJECTS.map(sub=>{ const el=document.getElementById(`m-${sid}-${sub}`); return el?parseInt(el.value)||0:0; });
+  const total=vals.reduce((a,b)=>a+b,0);
+  const el=document.getElementById('total-'+sid); if(el) el.textContent=total;
+}
+
+function saveMarks(){
+  students.forEach(s=>{
+    SUBJECTS.forEach(sub=>{
+      const el=document.getElementById(`m-${s.id}-${sub}`);
+      if(el){ if(!marks[s.id]) marks[s.id]={}; marks[s.id][sub]=parseInt(el.value)||0; }
+    });
+  });
+  alert('✅ Marks saved successfully!'); renderMarks();
+}
+
+// ════════════════════════════════════════════
+//  NOTES
+// ════════════════════════════════════════════
+const NOTE_COLORS=['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6'];
+
+function renderNotes(){
+  const grid=document.getElementById('notesGrid');
+  if(!notes.length){ grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><div class="icon">📝</div><p>No notes yet. Create your first note!</p></div>`; return; }
+  grid.innerHTML=notes.map(n=>`
+    <div class="note-card" onclick="viewNote(${n.id})">
+      <div class="note-color" style="background:${n.color}"></div>
+      <div style="padding-left:8px">
+        <div class="note-title">${n.title}</div>
+        <div class="note-body">${n.body}</div>
+        <div class="note-meta">
+          <span>${n.date}</span>
+          <button class="note-delete" onclick="event.stopPropagation();deleteNote(${n.id})">🗑️</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openAddNote(){ editingNoteId=null; document.getElementById('noteTitle').value=''; document.getElementById('noteBody').value=''; document.getElementById('noteModal').classList.add('open'); }
+
+function saveNote(){
+  const title=document.getElementById('noteTitle').value.trim();
+  const body=document.getElementById('noteBody').value.trim();
+  const color=document.getElementById('noteColor').value;
+  if(!title){ alert('Title is required.'); return; }
+  const now=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  notes.unshift({ id:nextNoteId++, title, body, color, date:now, author:currentUser.name });
+  closeModal('noteModal'); renderNotes();
+}
+
+function viewNote(id){
+  const n=notes.find(x=>x.id===id); if(!n) return;
+  document.getElementById('viewNoteTitle').textContent=n.title;
+  document.getElementById('viewNoteBody').textContent=n.body;
+  document.getElementById('viewNoteMeta').textContent=`By ${n.author} · ${n.date}`;
+  document.getElementById('viewNoteModal').classList.add('open');
+}
+
+function deleteNote(id){ if(confirm('Delete this note?')){ notes=notes.filter(n=>n.id!==id); renderNotes(); } }
+
+// ════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }));
+</script>
+</body>
+</html>
